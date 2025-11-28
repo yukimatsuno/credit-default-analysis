@@ -1,7 +1,7 @@
 # Part 1 - Data Ingestion
 
 ## File location
-`give_me_some_credit/notebooks/`
+`credit-default-analysis/notebooks/`
 
 ## Part 1
 There are two files related to managing and uploading data. 
