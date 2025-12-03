@@ -48,3 +48,104 @@ Steps to set it up:
 
    ```bash
    crontab -e
+
+---
+
+ ## Part 2 – Understanding the Data (EDA & Cleaning)
+
+ All EDA and cleaning logic is implemented in:
+
+ - `notebooks/basic visualization.ipynb`
+
+ ### How to run locally
+
+ 1. Start Jupyter:
+
+    ```bash
+    jupyter notebook
+    ```
+
+ 2. Open: `notebooks/basic visualization.ipynb`  
+ 3. Run the cells step by step.
+
+ ### Main steps in the notebook
+
+ 1. **Import raw CSV**
+
+    - Load the credit data from CSV files.
+    - Drop technical columns such as `Unnamed: 0` that do not contain information.
+
+ 2. **Initial exploration**
+
+    - Inspect columns, shape, data types, and non-null counts.
+    - Build a simple data dictionary to understand each feature.
+    - Check for duplicated rows.
+
+ 3. **Column name cleanup**
+
+    - Rename columns containing symbols (e.g. `-`) to avoid issues when referring to them in code.
+
+ 4. **Missing values & outliers**
+
+    The dataset includes missing values and “encoded outliers” such as 96 or 98.  
+    The notebook applies column-specific cleaning rules:
+
+    - `MonthlyIncome`  
+      - Fill `NaN` with the median.  
+      - Replace extreme outliers with the median.
+
+    - `NumberOfDependents`  
+      - Fill `NaN` with the median.  
+      - Replace extreme outliers.
+
+    - `Age`  
+      - Replace ages below 22 with 22.
+
+    - `RevolvingUtilizationOfUnsecuredLines`  
+      - Cap values above 1 at 1.
+
+    - `NumberOfTime30to59DaysPastDueNotWorse`  
+      - Replace special values 96 and 98 with the median.
+
+    - `DebtRatio`  
+      - Cap values above 1 at 1.
+
+    - `NumberOfOpenCreditLinesAndLoans`  
+      - Cap values above 20 at 20.
+
+    - `NumberOfTimes90DaysLate`  
+      - Replace 96 and 98 with the median.
+
+    - `NumberRealEstateLoansOrLines`  
+      - Replace outliers with the median.
+
+    - `NumberOfTime60to89DaysPastDueNotWorse`  
+      - Replace 96 and 98 with the median.
+
+ 5. **Class imbalance**
+
+    The target variable is:
+
+    - `SeriousDlqin2yrs` — whether the person experienced a 90-days-past-due delinquency or worse within 2 years.
+
+    The dataset is highly imbalanced:
+
+    - ~93%: No delinquency (`0`)  
+    - ~7%: Delinquency (`1`)
+
+    The notebook explores rebalancing techniques and visualization.
+
+ 6. **Visualizations & correlations**
+
+    - Correlation heatmaps
+    - Feature distributions (Yes vs No)
+    - Visualizations without outliers
+
+ ### Key findings (EDA summary)
+
+ - Higher revolving utilization is associated with a higher delinquency rate.  
+ - Younger customers tend to show higher delinquency.  
+ - If `NumberOfTimes90DaysLate > 1`, the chance of delinquency rises sharply.  
+ - More real-estate–backed loans tends to correlate with lower delinquency.
+
+ ---
