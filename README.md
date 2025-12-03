@@ -10,6 +10,14 @@ There are two files related to managing and uploading data.
 - Cron job runs everyday on a Virtual Machine (VM) at 2AM and checks for new files in folder `../raw_data/input_folder`. The incoming files are dumped into this folder.
 - The code for crontab file is written in `cronjob.txt` file in `notebooks` folder. 
 - Cronjob python script does the following:
+## Structure of files:
+There are two files related to managing and uploading data. The proposed flow is:
+- Cron job runs everyday on a VM at 2AM and checks for new files in folder `../raw_data/input_folder`. The incoming files are dumped into this folder.
+- The code for crontab file is written in `cronjob.txt` file in `notebooks` folder. This file in turn runs the python code written in `cron_job.ipynb`. Please note that the iPython notebook file itself is not supposed to be run as cron job but the contents in the file are supposed to be stored in a separate file and then run.
+- The cont
+Files location: `give_me_some_credit/notebooks/`  
+File_name: `cron_job.ipynb`: Does the following:
+
 1. Take csv files in `../raw_data/input_folder`, data source folder, and create a dataframe
 2. Add rows from the csv files on the current dataframe
 3. Save the dataframe in `../raw_data/input_folder` as `sample_data.csv`
