@@ -85,8 +85,6 @@ flowchart TD
   E -->|Query| F[Jupyter Notebook]
 ```
 
-<img src="notebooks/flow_chart.png" alt="Data Flow Diagram" width="230" />
-
 **Key Steps:**
 - **Automated Ingestion:** Cron job triggers Python script to process new files.
 - **Data Consolidation:** All new data is appended to a master CSV.
