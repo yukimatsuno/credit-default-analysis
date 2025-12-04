@@ -1,7 +1,36 @@
-**Tech stack:** Python, Pandas, Cron, Cloud SQL (MySQL), Jupyter Notebook
+# Credit Default Analysis
+
+<p align="right"><sub>転職用ポートフォリオ最適化版</sub></p>
+
+## 📑 Table of Contents
+
+- [Tech Stack & Tools](#️-tech-stack--tools)
+- [Project Overview](#-project-overview)
+- [Architecture & Data Flow](#-architecture--data-flow)
+- [Part 1 – Data Ingestion (Batch Pipeline)](#part-1--data-ingestion-batch-pipeline)
+- [Part 2 – Understanding the Data (EDA & Cleaning)](#part-2--understanding-the-data-eda--cleaning)
+- [Future Work (Data Engineering Focus)](#-future-work-data-engineering-focus)
 
 
 # Credit Default Analysis
+
+## 🛠 Tech Stack & Tools
+
+This project leverages a modern data engineering and analytics stack:
+
+- **Python** — Core scripting and data pipeline logic
+- **Pandas** — Data wrangling, cleaning, and transformation
+- **Jupyter Notebook** — Interactive EDA, visualization, and documentation
+- **Cron (Linux/macOS)** — Automated batch scheduling for ingestion
+- **Google Cloud SQL (MySQL)** — Managed relational database for centralized, scalable storage
+- **shutil, glob, os** — File system automation and orchestration
+- **Matplotlib, Seaborn** — Data visualization (in notebook)
+
+> **Why this stack?**
+>
+> - Demonstrates practical skills in batch data pipeline automation, cloud database integration, and reproducible analytics workflows.
+> - Mirrors real-world DE/DS environments (Python, SQL, cloud, automation).
+> - All code and infra are portable and can be adapted to other cloud or on-premise setups.
 
 This project explores and models credit default risk using the **Give Me Some Credit** dataset from Kaggle.  
 It demonstrates an end-to-end workflow covering:
@@ -13,7 +42,24 @@ It demonstrates an end-to-end workflow covering:
 
 It is designed both as a **data science learning project** and as a **data-engineering–oriented pipeline** example.
 
+
+# 🔭 Future Work (Data Engineering Focus)
+
+To further demonstrate advanced data engineering skills and extend this project, consider the following enhancements:
+
+- **Streaming Ingestion:** Upgrade the batch pipeline to support real-time data ingestion using Apache Kafka or Google Pub/Sub.
+- **Orchestration:** Migrate cron-based scheduling to a workflow orchestrator (e.g., Apache Airflow, Cloud Composer) for better monitoring and dependency management.
+- **Data Lake Integration:** Store raw and processed data in a cloud data lake (e.g., Google Cloud Storage, AWS S3) for scalable, cost-effective storage and versioning.
+- **Automated Data Quality Checks:** Integrate tools like Great Expectations or custom validation scripts to ensure data integrity before loading to SQL.
+- **CI/CD for Data Pipelines:** Implement automated testing and deployment for pipeline scripts using GitHub Actions or Cloud Build.
+- **Advanced Analytics:** Expand EDA to include feature selection, model training, and automated reporting/notebook generation.
+- **Monitoring & Alerting:** Add logging, monitoring, and alerting (e.g., Stackdriver, Prometheus) for pipeline health and data anomalies.
+- **Infrastructure as Code:** Use Terraform or Deployment Manager to provision and manage cloud resources reproducibly.
+
+> **These improvements will further showcase your readiness for modern data engineering roles and your ability to design robust, scalable, and production-grade data systems.**
+
 ---
+
 
 # 🚀 Project Overview
 
@@ -23,6 +69,35 @@ The goal of this project is to:
 2. Store the processed dataset in **GCP Cloud SQL** so analysts and data scientists share an identical data source.
 3. Perform **EDA and cleaning** to understand risk drivers related to loan delinquency.
 4. Provide a foundation for future predictive modeling.
+
+---
+
+# 🏗️ Architecture & Data Flow
+
+Below is the high-level architecture and data flow for the batch pipeline, designed to showcase practical data engineering skills:
+
+```mermaid
+flowchart TD
+  A[Upstream System\nProduces Daily CSVs] -->|Drop files| B[Input Folder]
+  B -->|Cron Triggered| C[Python Batch Script]
+  C -->|Append & Clean| D[Master Dataset]
+  D -->|Upload| E[GCP Cloud SQL]
+  E -->|Query| F[Jupyter Notebook]
+```
+
+<img src="notebooks/flow_chart.png" alt="Data Flow Diagram" width="230" />
+
+**Key Steps:**
+- **Automated Ingestion:** Cron job triggers Python script to process new files.
+- **Data Consolidation:** All new data is appended to a master CSV.
+- **Cloud Integration:** Data is uploaded to a managed SQL database for team access.
+- **Analytics:** Data scientists/analysts use Jupyter for EDA and reporting.
+
+> **This architecture demonstrates:**
+> - Real-world batch pipeline orchestration
+> - Cloud database integration
+> - Reproducible, team-friendly analytics workflows
+> - Automation and maintainability best practices
 
 ---
 
