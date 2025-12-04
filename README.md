@@ -1,151 +1,171 @@
+**Tech stack:** Python, Pandas, Cron, Cloud SQL (MySQL), Jupyter Notebook
+
+
 # Credit Default Analysis
 
-This project explores and models credit default risk using the **Give Me Some Credit** dataset.  
-It covers the whole workflow from **automated data ingestion** to **data cleaning, exploratory data analysis (EDA), and feature engineering**.
+This project explores and models credit default risk using the **Give Me Some Credit** dataset from Kaggle.  
+It demonstrates an end-to-end workflow covering:
 
-The repository is designed both as a **data science** study project and as a **data-engineering–oriented pipeline** example.
+- **Automated batch data ingestion (cron + Python)**
+- **Data cleaning & validation**
+- **Exploratory Data Analysis (EDA)**
+- **Feature engineering foundations**
+
+It is designed both as a **data science learning project** and as a **data-engineering–oriented pipeline** example.
 
 ---
 
-## Part 1 – Data Ingestion (Batch Pipeline)
+# 🚀 Project Overview
 
-### Goal
+The goal of this project is to:
 
-Automatically collect new CSV files on a schedule, append them to a master dataset, and upload the consolidated data into a **Cloud SQL (MySQL on GCP)** instance so that multiple data scientists can access the same source of truth.
+1. Build a **maintainable batch ingestion pipeline** that consolidates daily credit data updates.
+2. Store the processed dataset in **GCP Cloud SQL** so analysts and data scientists share an identical data source.
+3. Perform **EDA and cleaning** to understand risk drivers related to loan delinquency.
+4. Provide a foundation for future predictive modeling.
 
-### File locations
+---
+
+# Part 1 – Data Ingestion (Batch Pipeline)
+
+## Goal
+
+Automatically collect new CSV files, append them to a master dataset, and upload the consolidated data into **Cloud SQL (MySQL on GCP)**.
+
+## File locations
 
 - Data directory: `data/`
 - Raw input folder (watched by the cron job): `data/input_folder/`
-- Consolidated dataset (created by the job): `data/sample_data.csv`
-- Original snapshot of the dataset: `data/sample_data_original.csv`
+- Consolidated dataset: `data/sample_data.csv`
+- Original snapshot: `data/sample_data_original.csv`
 - Cron scripts & notebooks: `notebooks/`
   - `cron-upload-to-gcp.py`
   - `cronjob.txt`
   - `basic visualization.ipynb`
 
-### Proposed flow
+## Proposed flow
 
-1. A **cron job** runs every day at **2:00 AM** on a VM.
+1. A **cron job** runs every day at **2:00 AM**.
 2. It checks for new CSV files in `../data/input_folder/`.
-3. New incoming files are dropped into this directory by an upstream process.
-4. The python script `cron-upload-to-gcp.py`:
-   - Reads all CSV files in `../data/input_folder/`.
-   - Appends the rows to the existing master dataframe.
-   - Saves the updated dataframe as `sample_data.csv` in `../data/`.
-   - Uploads the contents of `sample_data.csv` into a **Cloud SQL (MySQL)** table on GCP.
-   - Deletes all files in `../data/input_folder/` (including the temporary `sample_data.csv`).
-   - Recreates a clean `../data/input_folder/` directory for the next run.
+3. New incoming files are produced by an upstream process.
+4. `cron-upload-to-gcp.py`:
+   - Reads all CSVs in the input folder.
+   - Appends rows to the master dataframe.
+   - Saves the dataframe as `sample_data.csv`.
+   - Uploads the results to **Cloud SQL** (MySQL).
+   - Deletes the input folder contents.
+   - Recreates a clean folder for the next run.
 
-### Cron setup
+## Cron setup
 
 The crontab entry is documented in `notebooks/cronjob.txt`.
 
-Steps to set it up:
+Example:
 
-1. Open Terminal on the VM.
-2. Run:
+```bash
+crontab -e
+``` 
+---
 
-   ```bash
-   crontab -e
+# Part 2 – Understanding the Data (EDA & Cleaning)
+
+All EDA and cleaning logic is implemented in:
+
+- `notebooks/basic visualization.ipynb`
 
 ---
 
- ## Part 2 – Understanding the Data (EDA & Cleaning)
+## How to run locally
 
- All EDA and cleaning logic is implemented in:
+1. Start Jupyter:
 
- - `notebooks/basic visualization.ipynb`
+```bash
+jupyter notebook
+``` 
 
- ### How to run locally
+2. Open: `notebooks/basic visualization.ipynb`  
+3. Run the notebook step by step.
 
- 1. Start Jupyter:
+---
 
-    ```bash
-    jupyter notebook
-    ```
+## Main steps in the notebook
 
- 2. Open: `notebooks/basic visualization.ipynb`  
- 3. Run the cells step by step.
+### 1. Import raw CSV
+- Load credit CSV files.
+- Drop technical columns such as `Unnamed: 0`.
 
- ### Main steps in the notebook
+### 2. Initial exploration
+- Inspect columns, shape, data types, and missing values.
+- Create a simple data dictionary.
+- Check duplicates.
 
- 1. **Import raw CSV**
+### 3. Column name cleanup
+- Normalize column names that contain symbols (e.g., `-`).
 
-    - Load the credit data from CSV files.
-    - Drop technical columns such as `Unnamed: 0` that do not contain information.
+### 4. Missing values & outliers
 
- 2. **Initial exploration**
+Rules applied:
 
-    - Inspect columns, shape, data types, and non-null counts.
-    - Build a simple data dictionary to understand each feature.
-    - Check for duplicated rows.
+- **MonthlyIncome**  
+  - Fill NaN with median  
+  - Replace extreme outliers with median  
 
- 3. **Column name cleanup**
+- **NumberOfDependents**  
+  - Fill NaN with median  
+  - Replace outliers  
 
-    - Rename columns containing symbols (e.g. `-`) to avoid issues when referring to them in code.
+- **Age**  
+  - Replace ages below 22 with 22  
 
- 4. **Missing values & outliers**
+- **RevolvingUtilizationOfUnsecuredLines**  
+  - Cap values above 1 at 1  
 
-    The dataset includes missing values and “encoded outliers” such as 96 or 98.  
-    The notebook applies column-specific cleaning rules:
+- **NumberOfTime30to59DaysPastDueNotWorse**  
+  - Replace 96, 98 with median  
 
-    - `MonthlyIncome`  
-      - Fill `NaN` with the median.  
-      - Replace extreme outliers with the median.
+- **DebtRatio**  
+  - Cap values at 1  
 
-    - `NumberOfDependents`  
-      - Fill `NaN` with the median.  
-      - Replace extreme outliers.
+- **NumberOfOpenCreditLinesAndLoans**  
+  - Cap values above 20  
 
-    - `Age`  
-      - Replace ages below 22 with 22.
+- **NumberOfTimes90DaysLate**  
+  - Replace 96, 98 with median  
 
-    - `RevolvingUtilizationOfUnsecuredLines`  
-      - Cap values above 1 at 1.
+- **NumberRealEstateLoansOrLines**  
+  - Replace outliers with median  
 
-    - `NumberOfTime30to59DaysPastDueNotWorse`  
-      - Replace special values 96 and 98 with the median.
+- **NumberOfTime60to89DaysPastDueNotWorse**  
+  - Replace 96, 98 with median  
 
-    - `DebtRatio`  
-      - Cap values above 1 at 1.
+---
 
-    - `NumberOfOpenCreditLinesAndLoans`  
-      - Cap values above 20 at 20.
+## 5. Class imbalance
 
-    - `NumberOfTimes90DaysLate`  
-      - Replace 96 and 98 with the median.
+Target: `SeriousDlqin2yrs`  
 
-    - `NumberRealEstateLoansOrLines`  
-      - Replace outliers with the median.
+Distribution:
 
-    - `NumberOfTime60to89DaysPastDueNotWorse`  
-      - Replace 96 and 98 with the median.
+- **93%** → No delinquency (`0`)
+- **7%** → Delinquency (`1`)
 
- 5. **Class imbalance**
+EDA includes experiments with resampling to address imbalance.
 
-    The target variable is:
+---
 
-    - `SeriousDlqin2yrs` — whether the person experienced a 90-days-past-due delinquency or worse within 2 years.
+## 6. Visualizations & correlations
 
-    The dataset is highly imbalanced:
+- Correlation heatmaps (before & after cleaning)
+- Feature distributions (Yes vs No on the target)
+- Visualizations with outliers removed for clarity
 
-    - ~93%: No delinquency (`0`)  
-    - ~7%: Delinquency (`1`)
+---
 
-    The notebook explores rebalancing techniques and visualization.
+## Key Findings (Summary)
 
- 6. **Visualizations & correlations**
+- **Higher revolving utilization** strongly correlates with higher delinquency.
+- **Younger customers** show higher delinquency rates.
+- **NumberOfTimes90DaysLate > 1** is a strong risk signal.
+- **More real-estate–backed loans** tends to correlate with *lower* delinquency risk.
 
-    - Correlation heatmaps
-    - Feature distributions (Yes vs No)
-    - Visualizations without outliers
-
- ### Key findings (EDA summary)
-
- - Higher revolving utilization is associated with a higher delinquency rate.  
- - Younger customers tend to show higher delinquency.  
- - If `NumberOfTimes90DaysLate > 1`, the chance of delinquency rises sharply.  
- - More real-estate–backed loans tends to correlate with lower delinquency.
-
- ---
+---
